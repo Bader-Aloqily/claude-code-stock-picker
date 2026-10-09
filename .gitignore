@@ -1,0 +1,83 @@
+# ============================================================
+# Standalone /us-picks System — Repo Scope
+# ============================================================
+# This repo (Bader-Aloqily/claude-code-stock-picker) is scoped EXCLUSIVELY to the
+# US weekly stock pick system. The .gitignore is ALLOWLIST-style:
+# everything in ~/.claude/ is ignored by default; only the in-scope
+# paths below are re-allowed. Anything new dropped into ~/.claude/
+# (a new top-level cache, settings update, plugin marketplace
+# refresh, etc.) stays out unless explicitly whitelisted here.
+#
+# ============================================================
+
+# === Default: deny every entry at root ===
+/*
+
+# === Allow in-scope top-level files & directories ===
+!/.gitignore
+!/README.md
+!/LICENSE
+# CLAUDE.md intentionally NOT allowed — author's private global config, local-only (removed from repo 2026-06-06)
+!/agents/
+!/commands/
+!/scripts/
+!/skills/
+!/stocks/
+!/projects/
+
+# === agents/ — allowlist: only us-* (matches us-*.md files and any us-*/ subdir) ===
+/agents/*
+!/agents/us-*
+
+# === commands/ — allowlist: only us-picks.md ===
+/commands/*
+!/commands/us-picks.md
+
+# === scripts/ — allowlist: ensure-deps-us.sh + the v4.9 Polygon/FD data-engine scripts ===
+/scripts/*
+!/scripts/ensure-deps-us.sh
+!/scripts/uspicks_*.py
+
+# === skills/ — allowlist: only us-stocks-memory/ ===
+/skills/*
+!/skills/us-stocks-memory/
+
+# === stocks/ — allowlist: only us-weekly-tracker* + v45 study ===
+/stocks/*
+!/stocks/us-weekly-tracker.md
+!/stocks/us-weekly-tracker-v4.4-archive.md
+!/stocks/us-weekly-tracker-v5.3-archive.md
+!/stocks/us-weekly-tracker-v6.0-archive.md
+!/stocks/v45-research-top100-study.md
+
+# === projects/ — narrow to the us-picks tracker archive ONLY ===
+# The global memory index (MEMORY.md) and all feedback_*.md memories are
+# the user's personal / cross-project session memory — NOT the /us-picks
+# system — and stay local-only. Only the pre-v4.2 us-picks tracker archive
+# is in scope.
+/projects/*
+!/projects/-Users-YOURNAME/
+/projects/-Users-YOURNAME/*
+!/projects/-Users-YOURNAME/memory/
+/projects/-Users-YOURNAME/memory/*
+!/projects/-Users-YOURNAME/memory/project_us_picks_tracker_v3_v4_archive.md
+
+# === Defense in depth (anywhere — never commit these even if a path is allowlisted) ===
+.DS_Store
+**/.DS_Store
+*.swp
+*.swo
+*~
+.credentials.json
+**/credentials*.json
+*.token
+*.key
+*.pem
+
+# Polygon ("Massive") + Financial Datasets API keys & S3 creds — NEVER commit (v4.9)
+.polygon_key
+.financialdatasets_key
+.polygon_flatfiles.json
+**/.polygon_key
+**/.financialdatasets_key
+**/.polygon_flatfiles.json
