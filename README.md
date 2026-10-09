@@ -6,7 +6,7 @@ This repo packages the system as a standalone Claude Code skill / agent / comman
 
 > ⚠️ **Not investment advice.** This is the author's personal research tool, shared as open source. It does not tell anyone what to buy; the author does not publish picks before the week or manage anyone's money. Past results do not predict future results. Use at your own risk.
 >
-> **Public release:** the author's own pick history, trade results and version history are not included — the tracker starts empty.
+> **Public release:** the tracker starts empty — the author's pick history and version history are not included. The author's closed trades on the system's picks are in [`results/`](results/) (percentages only).
 
 ---
 

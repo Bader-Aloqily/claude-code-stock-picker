@@ -17,6 +17,7 @@
 !/.gitignore
 !/README.md
 !/LICENSE
+!/results/
 # CLAUDE.md intentionally NOT allowed — author's private global config, local-only (removed from repo 2026-06-06)
 !/agents/
 !/commands/
