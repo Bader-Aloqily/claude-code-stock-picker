@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="436" viewBox="0 0 760 436" role="img" aria-labelledby="t d" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif">
+<title id="t">Return per trade: 189 closed trades on the system’s picks</title>
+<desc id="d">Horizontal bar chart of trade count by return bucket. Gain above +10%: 10; +5% to +10%: 16; +2% to +5%: 56; 0% to +2%: 70; Flat (0%): 1; −5% to 0%: 11; −10% to −5%: 11; Loss worse than −10%: 14.</desc>
+<text x="24" y="34" font-size="18" font-weight="600" fill="#f0efec">Return per trade — 189 closed trades on the system’s picks</text>
+<text x="24" y="58" font-size="13" fill="#c3c2b7">My own exits, 2026-03-24 to 2026-10-08, after commissions. 152 winners (80%), average +1.2% per trade.</text>
+<rect x="610" y="70" width="10" height="10" rx="2" fill="#3987e5"/>
+<text x="625" y="79" font-size="12" fill="#c3c2b7">gain</text>
+<rect x="672" y="70" width="10" height="10" rx="2" fill="#e66767"/>
+<text x="687" y="79" font-size="12" fill="#c3c2b7">loss</text>
+<text x="236" y="103.0" font-size="13" fill="#c3c2b7" text-anchor="end" dominant-baseline="middle">Gain above +10%</text>
+<path d="M250.0,92.0 H303.1 Q307.1,92.0 307.1,96.0 V110.0 Q307.1,114.0 303.1,114.0 H250.0 Z" fill="#3987e5"/>
+<text x="315.1" y="103.0" font-size="13" fill="#f0efec" dominant-baseline="middle">10</text>
+<text x="236" y="139.0" font-size="13" fill="#c3c2b7" text-anchor="end" dominant-baseline="middle">+5% to +10%</text>
+<path d="M250.0,128.0 H337.4 Q341.4,128.0 341.4,132.0 V146.0 Q341.4,150.0 337.4,150.0 H250.0 Z" fill="#3987e5"/>
+<text x="349.4" y="139.0" font-size="13" fill="#f0efec" dominant-baseline="middle">16</text>
+<text x="236" y="175.0" font-size="13" fill="#c3c2b7" text-anchor="end" dominant-baseline="middle">+2% to +5%</text>
+<path d="M250.0,164.0 H566.0 Q570.0,164.0 570.0,168.0 V182.0 Q570.0,186.0 566.0,186.0 H250.0 Z" fill="#3987e5"/>
+<text x="578.0" y="175.0" font-size="13" fill="#f0efec" dominant-baseline="middle">56</text>
+<text x="236" y="211.0" font-size="13" fill="#c3c2b7" text-anchor="end" dominant-baseline="middle">0% to +2%</text>
+<path d="M250.0,200.0 H646.0 Q650.0,200.0 650.0,204.0 V218.0 Q650.0,222.0 646.0,222.0 H250.0 Z" fill="#3987e5"/>
+<text x="658.0" y="211.0" font-size="13" fill="#f0efec" dominant-baseline="middle">70</text>
+<text x="236" y="247.0" font-size="13" fill="#c3c2b7" text-anchor="end" dominant-baseline="middle">Flat (0%)</text>
+<path d="M250.0,236.0 H252.9 Q255.7,236.0 255.7,238.9 V255.1 Q255.7,258.0 252.9,258.0 H250.0 Z" fill="#898781"/>
+<text x="263.7" y="247.0" font-size="13" fill="#f0efec" dominant-baseline="middle">1</text>
+<text x="236" y="283.0" font-size="13" fill="#c3c2b7" text-anchor="end" dominant-baseline="middle">−5% to 0%</text>
+<path d="M250.0,272.0 H308.9 Q312.9,272.0 312.9,276.0 V290.0 Q312.9,294.0 308.9,294.0 H250.0 Z" fill="#e66767"/>
+<text x="320.9" y="283.0" font-size="13" fill="#f0efec" dominant-baseline="middle">11</text>
+<text x="236" y="319.0" font-size="13" fill="#c3c2b7" text-anchor="end" dominant-baseline="middle">−10% to −5%</text>
+<path d="M250.0,308.0 H308.9 Q312.9,308.0 312.9,312.0 V326.0 Q312.9,330.0 308.9,330.0 H250.0 Z" fill="#e66767"/>
+<text x="320.9" y="319.0" font-size="13" fill="#f0efec" dominant-baseline="middle">11</text>
+<text x="236" y="355.0" font-size="13" fill="#c3c2b7" text-anchor="end" dominant-baseline="middle">Loss worse than −10%</text>
+<path d="M250.0,344.0 H326.0 Q330.0,344.0 330.0,348.0 V362.0 Q330.0,366.0 326.0,366.0 H250.0 Z" fill="#e66767"/>
+<text x="338.0" y="355.0" font-size="13" fill="#f0efec" dominant-baseline="middle">14</text>
+<line x1="250" y1="86" x2="250" y2="372" stroke="#383835" stroke-width="1"/>
+<text x="24" y="420" font-size="11" fill="#898781">Source: results/claude-code-stock-trades.csv · these are the author’s exits, not the system’s weekly rank grade · not investment advice</text>
+</svg>

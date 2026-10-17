@@ -201,6 +201,7 @@ FILES = [
     "stocks/us-weekly-tracker-v6.0-archive.md",
     "stocks/v45-research-top100-study.md",
     "README.md",
+    "docs/ARCHITECTURE.md",  # the detailed reference — the pre-2026-10-17 README body, moved when the README was shortened
     ".gitignore",
     "scripts/ensure-deps-us.sh",
     "scripts/uspicks_data.py",
@@ -502,6 +503,14 @@ MUST_CONTAIN = {
         PRICE_SCAN_RUNTIME,
         "uspicks_lint",
     ],
+    "docs/ARCHITECTURE.md": [  # 2026-10-17: carries the README's former detail, so it carries the same pins
+        "Version **6.3**",
+        "board-charter.md",
+        "No modelled trade plan (v6.1)",
+        "the whole-market mid-to-mega pick universe",
+        PRICE_SCAN_RUNTIME,
+        "uspicks_lint",
+    ],
     "scripts/uspicks_price_scan.py": [
         "SCAN_VERSION = 'v7-v46restore'",  # eligibility = $2B + $10, RSI 25-90, no atr floor (v6.1 2026-08-29)
     ],
@@ -554,6 +563,9 @@ MUST_CONTAIN = {
 STAGED_ALLOW = [
     r"^README\.md$",
     r"^\.gitignore$",
+    r"^docs/.+",  # ARCHITECTURE.md + README images (2026-10-17)
+    r"^results/.+",  # the author's closed-trade record
+    r"^\.github/workflows/lint\.yml$",  # CI runs this linter
     r"^commands/us-picks\.md$",
     r"^agents/us-[^/]+\.md$",
     r"^scripts/ensure-deps-us\.sh$",
@@ -947,7 +959,8 @@ def check_board_retired_no_stale(root):
              "### U.9 Board of Advisors Session", "`/us-picks board` convenes")
     markers = ("retired", "historical", "superseded", "formerly", "legacy", "was ")
     targets = ["commands/us-picks.md", "skills/us-stocks-memory/SKILL.md",
-               "skills/us-stocks-memory/references/board-charter.md", "README.md"]
+               "skills/us-stocks-memory/references/board-charter.md", "README.md",
+               "docs/ARCHITECTURE.md"]
     for rel in targets:
         text = read(root, rel)
         if text is None:
@@ -991,7 +1004,7 @@ def check_board_rekey_no_stale(root):
                "skills/us-stocks-memory/references/scoring-model.md",
                "skills/us-stocks-memory/SKILL.md", "commands/us-picks.md",
                "skills/us-stocks-memory/references/board-charter.md", "README.md",
-               "stocks/us-weekly-tracker.md"]
+               "docs/ARCHITECTURE.md", "stocks/us-weekly-tracker.md"]
     for rel in targets:
         text = read(root, rel)
         if text is None:
@@ -1043,7 +1056,8 @@ def check_current_state_no_stale(root):
                "→ 2026-0", "(was ", " was ")
     targets = sorted(p.relative_to(root).as_posix()
                      for p in (root / "agents").glob("us-*.md"))
-    targets += ["skills/us-stocks-memory/references/report-design.md", "README.md"]
+    targets += ["skills/us-stocks-memory/references/report-design.md", "README.md",
+                "docs/ARCHITECTURE.md"]
     for rel in targets:
         text = read(root, rel)
         if text is None:
