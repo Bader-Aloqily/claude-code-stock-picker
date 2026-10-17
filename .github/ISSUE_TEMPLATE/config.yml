@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/Bader-Aloqily/claude-code-stock-picker/discussions
+    about: Ask how something works or float an idea before writing code.
+  - name: Security issue
+    url: https://github.com/Bader-Aloqily/claude-code-stock-picker/security/advisories/new
+    about: Report privately. Do not open a public issue with the details.

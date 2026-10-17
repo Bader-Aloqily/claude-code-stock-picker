@@ -565,7 +565,10 @@ STAGED_ALLOW = [
     r"^\.gitignore$",
     r"^docs/.+",  # ARCHITECTURE.md + README images (2026-10-17)
     r"^results/.+",  # the author's closed-trade record
-    r"^\.github/workflows/lint\.yml$",  # CI runs this linter
+    r"^\.github/.+",  # CI workflow, issue forms, PR template, CODEOWNERS
+    r"^CONTRIBUTING\.md$",
+    r"^CODE_OF_CONDUCT\.md$",
+    r"^SECURITY\.md$",
     r"^commands/us-picks\.md$",
     r"^agents/us-[^/]+\.md$",
     r"^scripts/ensure-deps-us\.sh$",

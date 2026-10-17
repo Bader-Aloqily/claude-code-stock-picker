@@ -31,6 +31,7 @@ This is the system I run my own money on. The repo ships the complete `/us-picks
 - [Technical details for forkers](#technical-details-for-forkers)
 - [Repository layout](#repository-layout)
 - [FAQ](#faq)
+- [Contributing](#contributing)
 - [Disclaimer](#disclaimer)
 - [License](#license)
 
@@ -212,6 +213,7 @@ scripts/                             Polygon/Financial Datasets data layer, the 
 stocks/                              your tracker (starts empty), archive placeholders, the v4.5 top-100 study
 results/                             my 189 closed trades on the system's picks (CSV + notes)
 docs/ARCHITECTURE.md                 the detailed reference: every rule, filter, version note and cost line
+CONTRIBUTING.md                      how to contribute, what is wanted, what needs evidence first
 ```
 
 ## FAQ
@@ -232,6 +234,10 @@ docs/ARCHITECTURE.md                 the detailed reference: every rule, filter,
 
 **How long does a run take?** The price scan alone takes ~10-20 min and the agent stages add to that, so start it with time to spare on Sunday.
 
+## Contributing
+
+Contributions are welcome, and most of the useful ones need neither Claude Code nor a Polygon plan: tests (there are none yet), a stats script for `results/`, packaging, Windows/WSL testing, data-layer robustness, docs. [CONTRIBUTING.md](CONTRIBUTING.md) has the wanted list, the ground rules and the setup. The one thing to know up front: the system's scoring, filters and yardstick are frozen and change only with evidence, while everything around them is open. Bugs and ideas go in [Issues](https://github.com/Bader-Aloqily/claude-code-stock-picker/issues), questions in [Discussions](https://github.com/Bader-Aloqily/claude-code-stock-picker/discussions), and security reports follow [SECURITY.md](SECURITY.md).
+
 ## Disclaimer
 
 **This system is not financial advice.** It is my personal research workflow, shared as open source. A score-based system can and does pick stocks that fall. Nothing here guarantees profit, capital preservation or accuracy, and the rank-based win rate in `stocks/us-weekly-tracker.md` and the trades in `results/` are not indicative of future results. The Sharia screen is a business-activity blacklist, not a certified advisory; verify compliance independently. You are solely responsible for your investment decisions. Do your own research.
@@ -242,4 +248,4 @@ Released under the [MIT License](LICENSE). Use it, copy it, change it and share 
 
 ---
 
-If this is useful to you, a ⭐ on the repo helps other people find it. Questions and bug reports go in [Issues](https://github.com/Bader-Aloqily/claude-code-stock-picker/issues).
+If this is useful to you, a ⭐ on the repo helps other people find it. Want to help? Start with [CONTRIBUTING.md](CONTRIBUTING.md).

@@ -1,0 +1,54 @@
+name: Bug report
+description: Something in the command, an agent or a script does not work as documented
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Strip API keys, account numbers and anything personal from logs before pasting.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What did you run, and what did you see?
+      placeholder: "/us-picks update failed in Phase U.2 with ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: System version and commit
+      placeholder: "v6.3 @ bc43be3"
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Python version, Claude Code version, Polygon plan, and whether a Financial Datasets key is configured
+      placeholder: "macOS 15 / Python 3.12 / Claude Code 2.x / Polygon Stocks Advanced + flat files / no FD key"
+  - type: textarea
+    id: lint
+    attributes:
+      label: Linter output
+      description: Output of `python3 scripts/uspicks_lint.py --root .`
+      render: text
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or output
+      description: Relevant terminal output, with keys and account details removed
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I removed API keys and personal data from everything above
+          required: true
+        - label: This is not a request for a stock pick or trading advice
+          required: true

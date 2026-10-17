@@ -20,6 +20,9 @@
 !/results/
 !/docs/
 !/.github/
+!/CONTRIBUTING.md
+!/CODE_OF_CONDUCT.md
+!/SECURITY.md
 # CLAUDE.md intentionally NOT allowed — author's private global config, local-only (removed from repo 2026-06-06)
 !/agents/
 !/commands/

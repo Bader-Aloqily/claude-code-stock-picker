@@ -1,0 +1,49 @@
+name: Idea or improvement
+description: Propose a change to the scripts, agents, docs or tooling
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Scoring weights, filters, the universe, the selection rule and the grading yardstick are frozen under rule F1 and change only with evidence (see CONTRIBUTING.md). Everything else is open.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Data layer / scripts
+        - Agents / command
+        - Tests / tooling / CI
+        - Docs
+        - Portability (OS, packaging, other markets)
+        - Scoring, filters, universe or grading (needs evidence)
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is hard, slow, wrong or missing today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What would you change, and in which files?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Required for scoring, filter, universe or grading changes. Graded weeks, panel results, comparison arm; see the evidence bar in board-charter.md.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and discussions
+          required: true
+        - label: This is not a request for a stock pick or trading advice
+          required: true
