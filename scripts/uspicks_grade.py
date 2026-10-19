@@ -111,8 +111,9 @@ def main():
                     ts = mb.get('t')
                     if ts is None or mb.get('h') is None:
                         continue
-                    et = ((ts // 60000) - 240) % 1440      # ET = UTC-4 (EDT)
-                    if 570 <= et < 960:                     # 09:30 .. 15:59
+                    # 09:30 .. 15:59 ET, DST-aware (a fixed UTC-4 offset shifted
+                    # the window an hour late on every EST week, Nov-Mar)
+                    if ud.in_regular_session(ts):
                         mins.append(mb['h'])
             except Exception:
                 continue

@@ -47,9 +47,9 @@ This is the system I run my own money on. The repo ships the complete `/us-picks
 | Closed trades | 189 across 134 tickers, 2026-03-24 → 2026-10-08 |
 | Winners | 152 of 189 (80.4%) |
 | Average return per trade | +1.2% (median +1.65%) |
-| Average winner / average loser | +3.9% / −10.3% |
+| Average winner / average loser | +3.9% / −10.3% (152 winners, 36 losers, 1 flat) |
 | Profit factor | 1.6 |
-| Typical hold | under a day (median 0.7 days; 103 trades closed the same day) |
+| Typical hold | under a day (median 0.7 days; 103 trades held under 24 hours, 92 closed the same US trading day) |
 | Best / worst trade | +40.2% / −32.0% |
 
 Every row of [`results/claude-code-stock-trades.csv`](results/claude-code-stock-trades.csv) is a real fill, checked against my broker statement, with returns after buy and sell commissions. Option trades, trades on my own ideas and open positions are excluded. Notes and a table view of the chart are in [`results/README.md`](results/README.md).

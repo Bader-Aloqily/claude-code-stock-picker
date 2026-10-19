@@ -16,3 +16,18 @@ jobs:
           python-version: "3.12"
       - name: Run the drift linter
         run: python3 scripts/uspicks_lint.py --root .
+
+  unit-tests:
+    name: offline unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install pytz
+      - name: Byte-compile every script
+        run: python3 -m py_compile scripts/*.py
+      - name: Run the unit tests (no API keys, no network)
+        run: python3 -m unittest discover -s tests -v

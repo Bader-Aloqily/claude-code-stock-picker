@@ -53,10 +53,18 @@ def vice_tickers():
     return out
 
 
+def _ctrl_lines():
+    if not os.path.exists(CTRL):
+        return []
+    with open(CTRL, encoding='utf-8') as f:
+        return f.readlines()
+
+
 def draw(week_start):
     src = os.path.join(STOCKS, 'price-analyzer-output.json')
     try:
-        raw = json.load(open(src))
+        with open(src, encoding='utf-8') as f:
+            raw = json.load(f)
     except Exception as e:
         print('CTRL: WARN no scan output (%s) — no draw' % e)
         return
@@ -73,7 +81,7 @@ def draw(week_start):
         print('CTRL: WARN eligible pool %d < 5 — no draw' % len(pool))
         return
     # one draw per week, ever — a re-run returns the logged draw
-    for line in open(CTRL) if os.path.exists(CTRL) else []:
+    for line in _ctrl_lines():
         try:
             d = json.loads(line)
             if d.get('week_start') == week_start and d.get('type') == 'random5':
@@ -89,7 +97,7 @@ def draw(week_start):
     row = {'type': 'random5', 'week_start': week_start, 'tickers': picks,
            'seed': seed, 'pool_size': len(pool),
            'drawn_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
-    with open(CTRL, 'a') as f:
+    with open(CTRL, 'a', encoding='utf-8') as f:
         f.write(json.dumps(row) + '\n')
     print('CTRL: random-5 drawn for %s (seed %d, pool %d): %s'
           % (week_start, seed, len(pool), ' '.join(picks)))
@@ -145,7 +153,7 @@ def _outcome(rank):
 def grade(week_start, entry_date, exit_date):
     # the logged draw
     tickers = None
-    for line in open(CTRL) if os.path.exists(CTRL) else []:
+    for line in _ctrl_lines():
         try:
             d = json.loads(line)
             if d.get('week_start') == week_start and d.get('type') == 'random5':
@@ -167,7 +175,9 @@ def grade(week_start, entry_date, exit_date):
     def policy(t):
         first = daily.get(days[0], {}).get(t)
         last = daily.get(days[-1], {}).get(t)
-        if not first or not last or not first[0]:
+        # a missing open OR close must yield "no price context", not a TypeError
+        # that the fail-soft wrapper turns into a lost grade row for the whole week
+        if not first or not last or not first[0] or not last[2]:
             return None
         o = first[0]
         highs = [daily[d][t][1] for d in days if t in daily.get(d, {})
@@ -227,7 +237,7 @@ def grade(week_start, entry_date, exit_date):
                 'median_peak_pct': round(sorted(peaks)[n // 2], 2)}
     except Exception as e:
         out['base_rate'] = {'error': 'L4 snapshot unavailable: %s' % e}
-    with open(CTRL, 'a') as f:
+    with open(CTRL, 'a', encoding='utf-8') as f:
         f.write(json.dumps(out) + '\n')
     print(json.dumps(out, indent=1))
 

@@ -57,7 +57,7 @@ Env:    PRICE_HISTORY_DAYS (default 31),
 import os, sys, json, re, time, threading
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import uspicks_data as ud
@@ -227,7 +227,7 @@ def main():
 
     # Discover the last HISTORY_DAYS trading days via grouped-daily (empty = holiday/weekend).
     day_data = {}
-    d = datetime.strptime(REF_OVERRIDE, '%Y-%m-%d').date() if REF_OVERRIDE else datetime.utcnow().date()
+    d = datetime.strptime(REF_OVERRIDE, '%Y-%m-%d').date() if REF_OVERRIDE else datetime.now(timezone.utc).date()
     probes = 0
     while len(day_data) < HISTORY_DAYS and probes < HISTORY_DAYS * 2 + 20:
         if d.weekday() < 5:
@@ -342,7 +342,10 @@ def main():
     # Load any prior progress for THIS ref_date; else start the journal clean.
     done = {}
     try:
-        meta = json.load(open(SCAN_META)) if os.path.exists(SCAN_META) else {}
+        meta = {}
+        if os.path.exists(SCAN_META):
+            with open(SCAN_META, encoding='utf-8') as f:
+                meta = json.load(f)
     except Exception:
         meta = {}
     # Resume only when BOTH the ref_date AND the eligibility-logic version match —

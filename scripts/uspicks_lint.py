@@ -573,6 +573,8 @@ STAGED_ALLOW = [
     r"^agents/us-[^/]+\.md$",
     r"^scripts/ensure-deps-us\.sh$",
     r"^scripts/uspicks_[^/]+\.py$",
+    r"^tests/test_[^/]+\.py$",  # offline unit tests (2026-10-19)
+    r"^requirements\.txt$",
     r"^skills/us-stocks-memory/.+",
     r"^stocks/us-weekly-tracker\.md$",
     r"^stocks/us-weekly-tracker-v5\.3-archive\.md$",
@@ -1199,4 +1201,8 @@ def main():
 
 
 if __name__ == "__main__":
+    # The report prints emoji; a Windows console (cp1252) would otherwise crash
+    # on the final line AFTER every check has already passed.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.exit(main())

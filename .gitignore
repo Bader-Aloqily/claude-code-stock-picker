@@ -30,6 +30,8 @@
 !/skills/
 !/stocks/
 !/projects/
+!/tests/
+!/requirements.txt
 
 # === agents/ — allowlist: only us-* (matches us-*.md files and any us-*/ subdir) ===
 /agents/*
