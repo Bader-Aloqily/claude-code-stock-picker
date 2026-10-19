@@ -15,7 +15,7 @@
 ![189 closed trades](https://img.shields.io/badge/results-189_closed_trades-informational)
 ![Not investment advice](https://img.shields.io/badge/not-investment_advice-lightgrey)
 
-This is the system I run my own money on. The repo ships the complete `/us-picks` slash command, its ten agents and the memory skill, the [Polygon.io](https://polygon.io/) data layer, a drift linter, and the **189 broker-verified trades** I closed on its picks between March and October 2026.
+This is the system I run my own money on, as of tag [`v6.3-author`](https://github.com/Bader-Aloqily/claude-code-stock-picker/tree/v6.3-author). The repo ships the complete `/us-picks` slash command, its ten agents and the memory skill, the [Polygon.io](https://polygon.io/) data layer, a drift linter, and the **189 broker-verified trades** I closed on its picks between March and October 2026.
 
 > ⚠️ **Not investment advice.** This is a personal research tool published as open source. It does not tell anyone what to buy, I do not publish picks before the week, and past results do not predict future results. Use at your own risk.
 
@@ -41,6 +41,8 @@ This is the system I run my own money on. The repo ships the complete `/us-picks
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/returns-dark.svg">
   <img alt="Return per trade: 189 closed trades. 152 winners (80%), average +1.2% per trade. Most trades landed between 0% and +5%; 14 lost more than 10%." src="docs/assets/returns-light.svg" width="760">
 </picture>
+
+> **Version note (2026-10-19).** The public `main` has diverged from the version I run. PR #2 changed how weeks are graded (daylight-saving-aware session hours, gap fills in the trade simulator, a fail-soft control grade). The trade record below was made on the earlier version, tagged [`v6.3-author`](https://github.com/Bader-Aloqily/claude-code-stock-picker/tree/v6.3-author), not on the current `main`.
 
 | | |
 |---|---|
