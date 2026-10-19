@@ -54,16 +54,22 @@ Verified live 2026-06-08 against the user's account:
   flat files -> us_stocks_sip/{day_aggs_v1 0.3MB, minute_aggs_v1 31MB}/YYYY/MM/DATE.csv.gz
 """
 import os, sys, json, re, time, gzip
-import urllib.request, urllib.error
-from datetime import datetime, timedelta
+import urllib.request, urllib.error, urllib.parse
+from datetime import datetime, timedelta, timezone
 
 try:
     import pytz
     _ET = pytz.timezone('America/New_York')
     _UTC = pytz.utc
 except Exception:                      # pragma: no cover
-    _ET = None
-    _UTC = None
+    # stdlib fallback (Python 3.9+) — still DST-aware, unlike a fixed UTC-4 offset
+    try:
+        from zoneinfo import ZoneInfo
+        _ET = ZoneInfo('America/New_York')
+        _UTC = timezone.utc
+    except Exception:
+        _ET = None
+        _UTC = None
 
 CACHE_DIR = os.path.expanduser('~/.claude/stocks/_flatfiles_cache')
 
@@ -71,15 +77,26 @@ CACHE_DIR = os.path.expanduser('~/.claude/stocks/_flatfiles_cache')
 # ----------------------------------------------------------------------------
 # Credentials
 # ----------------------------------------------------------------------------
+def _read_text(path):
+    with open(os.path.expanduser(path), encoding='utf-8') as f:
+        return f.read()
+
+
 def polygon_key():
     k = os.environ.get('POLYGON_API_KEY')
     if k:
         return k.strip()
-    return open(os.path.expanduser('~/.claude/.polygon_key')).read().strip()
+    return _read_text('~/.claude/.polygon_key').strip()
 
 
 def flatfile_creds():
-    return json.load(open(os.path.expanduser('~/.claude/.polygon_flatfiles.json')))
+    return json.loads(_read_text('~/.claude/.polygon_flatfiles.json'))
+
+
+def _poly_headers():
+    """The Polygon key travels in the Authorization header, never the URL, so it
+    cannot leak through an HTTPError message, a traceback or a proxy log."""
+    return {'User-Agent': 'uspicks/1.0', 'Authorization': 'Bearer ' + polygon_key()}
 
 
 # ----------------------------------------------------------------------------
@@ -100,15 +117,24 @@ def _ts_to_ms(v):
 
 def _to_et(ts_any):
     ms = _ts_to_ms(ts_any)
-    if _ET is None:       # pragma: no cover  (pytz missing — UTC-4 EDT fallback)
-        return datetime.utcfromtimestamp(ms / 1000.0)
+    if _ET is None:       # pragma: no cover  (no tz database at all — UTC, labelled wrong)
+        return datetime.fromtimestamp(ms / 1000.0, tz=timezone.utc)
     return datetime.fromtimestamp(ms / 1000.0, tz=_UTC).astimezone(_ET)
 
 
 def _et_minutes(ts_any):
-    """ET minute-of-day (0-1439) for a Polygon timestamp."""
+    """ET minute-of-day (0-1439) for a Polygon timestamp. DST-aware: use this
+    instead of a fixed UTC-4 offset, which is an hour off from November to March."""
     et = _to_et(ts_any)
     return et.hour * 60 + et.minute
+
+
+REGULAR_OPEN_MIN, REGULAR_CLOSE_MIN = 9 * 60 + 30, 16 * 60   # 09:30 .. 15:59 ET
+
+
+def in_regular_session(ts_any):
+    """True when a minute bar's start falls in the 09:30-15:59 ET regular session."""
+    return REGULAR_OPEN_MIN <= _et_minutes(ts_any) < REGULAR_CLOSE_MIN
 
 
 # ----------------------------------------------------------------------------
@@ -119,12 +145,13 @@ _BACKOFF = [2, 5, 15, 40]
 
 
 def _pget(path, params=None, retries=4):
-    qs = '&'.join('%s=%s' % (k, v) for k, v in (params or {}).items())
-    sep = '&' if '?' in path else '?'
-    url = POLY + path + sep + ((qs + '&') if qs else '') + 'apiKey=' + polygon_key()
+    """GET a Polygon REST path (or an absolute https://api.polygon.io next_url)."""
+    url = path if path.startswith(POLY + '/') else POLY + path
+    if params:
+        url += ('&' if '?' in url else '?') + urllib.parse.urlencode(params, safe=',')
     for attempt in range(retries):
         try:
-            req = urllib.request.Request(url, headers={'User-Agent': 'uspicks/1.0'})
+            req = urllib.request.Request(url, headers=_poly_headers())
             with urllib.request.urlopen(req, timeout=60) as r:
                 return json.loads(r.read())
         except urllib.error.HTTPError as e:
@@ -309,8 +336,9 @@ def splits_in_range(after_date, through_date):
     out = {}
     params = {'execution_date.gt': after_date, 'execution_date.lte': through_date,
               'limit': '1000', 'order': 'asc', 'sort': 'execution_date'}
+    path = '/v3/reference/splits'
     for _ in range(10):  # cursor-paginate defensively (a weekly window has ~tens)
-        d = _pget('/v3/reference/splits', params)
+        d = _pget(path, params)
         for s in (d.get('results') or []):
             try:
                 f = float(s['split_from']); t = float(s['split_to'])
@@ -319,9 +347,9 @@ def splits_in_range(after_date, through_date):
             except Exception:
                 pass
         nxt = d.get('next_url') or ''
-        if 'cursor=' not in nxt:
+        if not nxt.startswith(POLY + '/'):
             break
-        params = {'cursor': nxt.split('cursor=', 1)[1].split('&', 1)[0]}
+        path, params = nxt, None      # next_url already carries the encoded cursor
     return out
 
 
@@ -334,11 +362,10 @@ def options_chain(underlying, limit=250, max_pages=8):
     pages = 0
     while d.get('next_url') and pages < max_pages:
         nu = d['next_url']
-        url = nu + ('&' if '?' in nu else '?') + 'apiKey=' + polygon_key()
+        if not nu.startswith(POLY + '/'):        # never send the key to another host
+            break
         try:
-            req = urllib.request.Request(url, headers={'User-Agent': 'uspicks/1.0'})
-            with urllib.request.urlopen(req, timeout=60) as r:
-                d = json.loads(r.read())
+            d = _pget(nu, retries=2)
             out.extend(d.get('results') or [])
         except Exception:
             break
@@ -372,7 +399,16 @@ def download_flatfile(kind, date_str, force=False):
     if os.path.exists(local) and not force and os.path.getsize(local) > 0:
         return local
     s3, bucket = _s3()
-    s3.download_file(bucket, key, local)
+    # Download to a temp name and rename on success: an interrupted download must
+    # never leave a truncated non-empty file that the cache check above would then
+    # serve forever as if it were complete.
+    tmp = local + '.part'
+    try:
+        s3.download_file(bucket, key, tmp)
+        os.replace(tmp, local)
+    finally:
+        if os.path.exists(tmp):
+            os.remove(tmp)
     return local
 
 
@@ -450,13 +486,6 @@ def afterhours_close_all(date_str):
     return {t: v[1] for t, v in best.items()}
 
 
-# ----------------------------------------------------------------------------
-# Financial Datasets REST — RETIRED 2026-08-14 (subscription cancelled).
-# The fd_* helpers were deleted; recoverable from git on re-subscription.
-# Insider trades / 13F / SEC filing text → WebFetch fallbacks in the agents.
-# ----------------------------------------------------------------------------
-
-
 # ============================================================================
 # Financial Datasets REST — RE-WIRED 2026-08-29 (user-directed)
 # ----------------------------------------------------------------------------
@@ -508,18 +537,19 @@ def fd_key():
     if k:
         return k.strip()
     try:
-        return open(os.path.expanduser('~/.claude/.financialdatasets_key')).read().strip()
+        return _read_text('~/.claude/.financialdatasets_key').strip()
     except Exception:
         return ''
+
+
+_FD_OK = None
 
 
 def fd_available():
     """True only if a key exists AND the API answers. Cached per process."""
     global _FD_OK
-    try:
+    if _FD_OK is not None:
         return _FD_OK
-    except NameError:
-        pass
     ok = False
     if fd_key():
         try:
@@ -530,7 +560,7 @@ def fd_available():
                 ok = True
         except Exception:
             ok = False
-    globals()['_FD_OK'] = ok
+    _FD_OK = ok
     return ok
 
 
@@ -550,7 +580,7 @@ def _fget_url(url, retries=3):
             with urllib.request.urlopen(req, timeout=40) as r:
                 return json.loads(r.read())
         except urllib.error.HTTPError as e:
-            if e.code in (429, 500, 502, 503) and attempt < retries - 1:
+            if (e.code == 429 or 500 <= e.code < 600) and attempt < retries - 1:
                 time.sleep(_BACKOFF[min(attempt, len(_BACKOFF) - 1)]); continue
             return {}
         except Exception:
@@ -856,7 +886,7 @@ def sp500_members():
             tickers = sorted(set(syms))
             try:
                 os.makedirs(os.path.dirname(SP500_CACHE), exist_ok=True)
-                with open(SP500_CACHE, 'w') as f:
+                with open(SP500_CACHE, 'w', encoding='utf-8') as f:
                     json.dump({'as_of': datetime.now().strftime('%Y-%m-%d'),
                                'source': 'wikipedia', 'tickers': tickers}, f)
             except OSError:
@@ -866,7 +896,8 @@ def sp500_members():
     except Exception as e:
         err = repr(e)
     try:
-        c = json.load(open(SP500_CACHE))
+        with open(SP500_CACHE, encoding='utf-8') as f:
+            c = json.load(f)
         tk = c.get('tickers') or []
         if len(tk) >= 480:
             return set(tk), 'CACHE as-of %s (%d tickers) — live fetch failed: %s' % (
@@ -918,7 +949,7 @@ def ndx_members():
             tickers = sorted(syms)
             try:
                 os.makedirs(os.path.dirname(NDX_CACHE), exist_ok=True)
-                with open(NDX_CACHE, 'w') as f:
+                with open(NDX_CACHE, 'w', encoding='utf-8') as f:
                     json.dump({'as_of': datetime.now().strftime('%Y-%m-%d'),
                                'source': 'nasdaq-api', 'tickers': tickers}, f)
             except OSError:
@@ -928,7 +959,8 @@ def ndx_members():
     except Exception as e:
         err = repr(e)
     try:
-        c = json.load(open(NDX_CACHE))
+        with open(NDX_CACHE, encoding='utf-8') as f:
+            c = json.load(f)
         tk = c.get('tickers') or []
         if len(tk) >= 95:
             return set(tk), 'CACHE as-of %s (%d tickers) — live fetch failed: %s' % (

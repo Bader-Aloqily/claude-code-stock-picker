@@ -259,7 +259,7 @@ def main():
     out = {
         'status': 'DONE',
         'measurement_basis': basis,          # 'open_to_close' healthy (default MEASURE='close'); 'open_to_peak' only under GAINERS_MEASURE=peak (rejected path)
-        'measure_mode': MEASURE,             # 'peak' (v6.1 default) | 'close'
+        'measure_mode': MEASURE,             # 'close' (default) | 'peak' (rejected path, GAINERS_MEASURE=peak)
         'peak_sessions_used': n_sessions,
         'liq_floor': LIQ_FLOOR,
         'liq_floor_applied': liq_floor_applied,   # 2026-09-04: False = the floor silently did not apply (full-market basis) -> Phase U.2 POSTPONES
@@ -276,8 +276,12 @@ def main():
         'ranked_universe': ranked,
         'elapsed_sec': round(time.time() - t0, 1),
     }
-    with open(OUTPUT_FILE, 'w') as f:
+    # atomic write: Phase U.3 and uspicks_controls.py read this file, and a crash
+    # mid-write must not leave them a truncated ranked universe
+    tmp = OUTPUT_FILE + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(out, f)
+    os.replace(tmp, OUTPUT_FILE)
     summary = dict(out)
     summary['ranked_universe'] = '<%d rows in %s>' % (N, OUTPUT_FILE)
     summary['top_500'] = '<500 rows in file>'

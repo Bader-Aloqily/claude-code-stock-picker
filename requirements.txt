@@ -1,0 +1,9 @@
+# Python dependencies for the /us-picks scripts — the same set
+# scripts/ensure-deps-us.sh installs. `pip install -r requirements.txt`
+boto3          # Polygon flat files (S3)
+pandas>=2.0    # price scan indicators + read_html(io.StringIO(...))
+lxml           # read_html parser
+html5lib       # read_html parser
+pytz           # ET / DST conversion (stdlib zoneinfo is the fallback)
+fpdf2          # Arabic weekly PDFs (scripts/uspicks_pdf.py)
+uharfbuzz      # RTL Arabic shaping for those PDFs

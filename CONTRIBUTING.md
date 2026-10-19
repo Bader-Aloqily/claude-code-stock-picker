@@ -10,7 +10,7 @@ Good first contributions. None of these need a Polygon plan or Claude Code to wo
 
 - **Tests.** There are none yet. A test suite for the pure-Python pieces (`scripts/uspicks_lint.py`, `uspicks_controls.py`, `uspicks_grade.py`, the filter logic in `uspicks_price_scan.py`) is the single most valuable thing missing.
 - **A stats script for `results/`.** The numbers in [`results/README.md`](results/README.md) were computed by hand from the CSV. A small `results/stats.py` that recomputes them, and the chart, would keep them honest as the file grows.
-- **Packaging and portability.** A `requirements.txt` or `pyproject.toml` next to `ensure-deps-us.sh`, Windows/WSL testing, a devcontainer or Dockerfile.
+- **Packaging and portability.** A `pyproject.toml` next to `requirements.txt`, Windows/WSL testing, a devcontainer or Dockerfile.
 - **Data-layer robustness.** Retries, rate-limit handling and clearer error messages in `scripts/uspicks_data.py` and the scan scripts.
 - **Documentation.** Anything in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) that is unclear, an English option for the weekly PDF report (it is Arabic today), screenshots of real output.
 
@@ -35,8 +35,9 @@ The scoring weights, the hard filters, the pick universe, the selection rule and
 ```bash
 git clone https://github.com/<your-user>/claude-code-stock-picker.git
 cd claude-code-stock-picker
-bash scripts/ensure-deps-us.sh             # boto3, pandas, pytz, fpdf2, uharfbuzz
+bash scripts/ensure-deps-us.sh             # boto3, pandas, pytz, fpdf2, uharfbuzz (or: pip install -r requirements.txt)
 python3 scripts/uspicks_lint.py --root .   # must print "all checks passed"
+python3 -m unittest discover -s tests      # offline unit tests, no API keys needed
 ```
 
 Install the linter as a pre-commit hook so an inconsistent state cannot be committed:

@@ -20,7 +20,7 @@ Usage
   python3 ~/.claude/scripts/uspicks_premarket_check.py AAPL:307.78 MSFT NVDA:120.50
 """
 import sys, os, re
-sys.path.insert(0, os.path.expanduser('~/.claude/scripts'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import uspicks_data as ud
 
 TRACKER = os.path.expanduser('~/.claude/stocks/us-weekly-tracker.md')
@@ -61,7 +61,8 @@ def parse_latest_week(path):
     """(week_label, picks) for the highest-dated non-SKIPPED week (order-independent)."""
     if not os.path.exists(path):
         return (None, [])
-    text = open(path).read()
+    with open(path, encoding='utf-8') as f:
+        text = f.read()
     best = None  # (date_str, header, picks)
     for chunk in re.split(r'(?m)^### Week of ', text)[1:]:
         header = chunk.splitlines()[0].strip()

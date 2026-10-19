@@ -12,9 +12,9 @@
 | Closed trades | 189 (134 tickers), 2026-03-24 → 2026-10-08 |
 | Winners | 152 of 189 (80.4%) |
 | Average return per trade | +1.2% (median +1.65%) |
-| Average winner / average loser | +3.9% / −10.3% |
+| Average winner / average loser | +3.9% / −10.3% (152 winners, 36 losers, 1 flat) |
 | Profit factor (gross gains ÷ gross losses) | 1.6 |
-| Typical hold | under a day (median 0.7 days; 103 of the 189 closed the same day they opened) |
+| Typical hold | under a day (median 0.7 days; 103 of the 189 held under 24 hours, 92 closed the same US trading day they opened) |
 | Best / worst trade | +40.2% / −32.0% |
 
 <details>

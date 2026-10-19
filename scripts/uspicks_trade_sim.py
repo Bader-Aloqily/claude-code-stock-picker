@@ -40,14 +40,18 @@ NOTE ON SCOPE (user-directed 2026-08-29):
     "Don't worry about when I would buy and when I will sell. That is my thing
      to do... I will put it as one percent trail or half percent trail depending
      on how volatile the stock is."
-    So this file is a REFERENCE TOOL ONLY. It grades nothing. The live grade is
-    the +2% PEAK TOUCH in uspicks_grade.py, which models no exit at all.
+    So this file is a REFERENCE TOOL ONLY. It grades nothing. Since v6.3 the live
+    grade is the pick's WEEKLY RANK (uspicks_gainers_scan.py); uspicks_grade.py
+    reports the +2% peak touch beside it as context.
 
 HONEST LIMITATION (stated, not hidden):
     A trailing stop becomes a MARKET order when triggered, so a real fill in a
-    fast drop is worse than the trail price this simulator assumes. Results are
-    therefore mildly optimistic on thin or gapping names. Within-minute ordering
-    is also unknown, but at 1-minute granularity that is negligible.
+    fast drop is worse than the trail price this simulator assumes. A bar that
+    OPENS through the stop (an overnight gap) fills at that open, not at the stop
+    level. Results are still mildly optimistic on thin names. Within-minute
+    ordering is also unknown, but at 1-minute granularity that is negligible.
+    (Figures above predate the gap-fill and DST fixes of 2026-10-19 and were
+    measured on EDT weeks only, so the DST fix does not change them.)
 
 Usage:
     python3 uspicks_trade_sim.py TICKER ENTRY_DATE EXIT_DATE [--json]
@@ -94,16 +98,16 @@ def session_days(entry_date, exit_date):
 
 
 def regular_session(bars):
-    """Keep 09:30-15:59 ET. A retail stop does not execute in extended hours."""
-    out = []
-    for b in bars:
-        ts = b.get('t')
-        if ts is None:
-            continue
-        mins = ((ts // 60000) - 240) % 1440       # ET = UTC-4 (EDT)
-        if 570 <= mins < 960:
-            out.append(b)
-    return out
+    """Keep 09:30-15:59 ET (DST-aware). A retail stop does not execute in extended hours."""
+    return [b for b in bars if b.get('t') is not None and ud.in_regular_session(b['t'])]
+
+
+def _fill(level, bar):
+    """Fill price for a stop at `level` hit inside `bar`. If the bar OPENED below the
+    level (an overnight gap or a halt), the stop fills at the open, not at the level —
+    assuming the level would credit the trade with a price that never traded."""
+    o = bar.get('o')
+    return min(level, o) if o else level
 
 
 def simulate(ticker, entry_date, exit_date):
@@ -140,7 +144,7 @@ def simulate(ticker, entry_date, exit_date):
             # If both the hard stop and the arm level are touched in the same
             # minute we take the stop — the pessimistic reading.
             if hard_stop is not None and l <= hard_stop:
-                exit_px, how = hard_stop, 'hard_stop'
+                exit_px, how = _fill(hard_stop, b), 'hard_stop'
                 break
             if h >= arm_px:
                 armed = True
@@ -150,6 +154,12 @@ def simulate(ticker, entry_date, exit_date):
                     exit_px, how = peak * (1 - TRAIL_PCT), 'trail_same_minute'
                     break
         else:
+            # Gap check first: if this bar opens below the trail set by the bars
+            # BEFORE it, the stop triggered at the open.
+            o = b.get('o')
+            if o and o <= peak * (1 - TRAIL_PCT):
+                exit_px, how = o, 'trail_gap'
+                break
             peak = max(peak, h)
             trail = peak * (1 - TRAIL_PCT)
             if l <= trail:
@@ -177,8 +187,7 @@ def simulate(ticker, entry_date, exit_date):
         'arm_level': round(arm_px, 4),
         'hard_stop': round(hard_stop, 4) if hard_stop else None,
         'armed': armed,
-        'armed_at': (datetime.utcfromtimestamp(arm_ts / 1000) - timedelta(hours=4)
-                     ).strftime('%Y-%m-%d %H:%M ET') if arm_ts else None,
+        'armed_at': ud._to_et(arm_ts).strftime('%Y-%m-%d %H:%M ET') if arm_ts else None,
         'peak_price': round(peak, 4),
         'peak_return_pct': round((peak / entry - 1) * 100, 2),
         'exit_price': round(exit_px, 4),
@@ -214,8 +223,7 @@ def selftest():
 
 def main():
     if '--selftest' in sys.argv:
-        selftest()
-        return 0
+        return 0 if selftest() else 1
     if '--hard-stop' in sys.argv:
         i = sys.argv.index('--hard-stop')
         globals()['HARD_STOP_PCT'] = float(sys.argv[i + 1]) / 100.0
